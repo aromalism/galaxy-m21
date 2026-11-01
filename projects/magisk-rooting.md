@@ -4,15 +4,15 @@
 > **Platform:** Exynos 9611 / `universal9611`, ARM64  
 > **Original software:** Android 12 / One UI Core 4.1  
 > **Host:** Arch Linux  
-> **Objective:** Unlock the bootloader, patch the stock boot image with Magisk, flash it, and verify root access.
+> **Objective:** Bootloader unlocking, Magisk boot-image patching, flashing, and root-access verification.
 
 ## 1. Project overview
 
-This document records the work performed on a Samsung Galaxy M21, from device and firmware identification through bootloader unlocking, firmware-image preparation, Magisk patching, flashing, and post-boot verification.
+This document records the device-modification process performed on a Samsung Galaxy M21, from device and firmware identification through bootloader unlocking, firmware-image preparation, Magisk patching, flashing, and post-boot root verification.
 
-The phone was successfully rooted by patching its stock boot image with Magisk 31.1 and flashing the resulting image to the `BOOT` partition with Heimdall. A later investigation into enabling multiple Android users was unsuccessful and is documented separately; it was not part of the successful rooting operation.
+Root access was established by patching the stock boot image with Magisk 31.1 and flashing the resulting image to the `BOOT` partition with Heimdall. A subsequent investigation into enabling multiple Android users was unsuccessful and is documented separately because it was not part of the rooting process.
 
-This is a chronological engineering record, not a generic recipe. Confirmed actions and outputs are recorded as observed. Where an exact intermediate command or output was not retained, that limitation is identified rather than filled with an invented detail.
+The document is structured as a chronological technical record rather than a general rooting tutorial. Actions and outputs are retained as recorded. Where an exact intermediate command or output is unavailable, that limitation is stated rather than replaced with an assumption.
 
 ## 2. Device identification and baseline
 
@@ -39,11 +39,11 @@ This is a chronological engineering record, not a generic recipe. Confirmed acti
 | CSC region | INS (India) |
 | Security patch | 2023-12-01 |
 
-Firmware matching mattered because the boot image used for patching needed to come from the firmware installed on this exact device.
+The firmware package was matched to the build installed on the device so that the boot image used for patching came from the same firmware version.
 
 ### 2.3 Host tools
 
-The host computer ran Arch Linux. The project used ADB for host-to-phone communication, Heimdall for Samsung Download Mode flashing, and Magisk for boot-image patching and root access. Odin4 was also built and tested, but it did not successfully establish a flashing session.
+The host system was Arch Linux. ADB was used for communication with the device, Heimdall for flashing in Samsung Download Mode, and Magisk for boot-image patching and root management. Odin4 was also built and tested, but it failed to establish a flashing session.
 
 | Tool | Recorded version / status |
 |---|---|
@@ -53,19 +53,19 @@ The host computer ran Arch Linux. The project used ADB for host-to-phone communi
 
 ## 3. Firmware acquisition and inspection
 
-The matching firmware package was obtained as:
+The matching firmware package was obtained:
 
 ```text
 SAMFW.COM_SM-M215F_INS_M215FXXS3CWK1_fac.zip
 ```
 
-Its size was approximately 4.7 GB. The archive's MD5 checksum was verified:
+The archive was approximately 4.7 GB. The package MD5 checksum was verified:
 
 ```text
 268423eef3d3bd5435df18df7b09db12
 ```
 
-The package matched the device's recorded AP build, `M215FXXS3CWK1`, and the INS region.
+The package was checked against the device's recorded AP build, `M215FXXS3CWK1`, and the INS region.
 
 The firmware was extracted into:
 
@@ -87,48 +87,48 @@ Relevant extracted files included:
 | `magiskboot-31.1-arm64.so` | MagiskBoot ARM64 binary retained during inspection |
 | `magisk_boot.img` | Patched boot image ultimately flashed |
 
-The original `boot.img` and `recovery.img` were retained. The patched `magisk_boot.img` was retained as the image that successfully booted.
+The original `boot.img` and `recovery.img` were retained, along with the patched `magisk_boot.img` that successfully booted.
 
 ## 4. Bootloader unlocking
 
-The bootloader was unlocked on the phone using Samsung's Download Mode unlock flow.
+The bootloader was unlocked using Samsung's Download Mode unlock procedure.
 
 ### 4.1 Preparation
 
-The OEM unlocking option was available in Developer options and was enabled before entering Download Mode. Before proceeding, the user confirmed that there was no important device data that needed to be backed up. This was important because Samsung's unlock operation performs a factory reset.
+**OEM unlocking** was enabled in Developer options before entering Download Mode. The bootloader-unlock operation performs a factory reset; any required device data should therefore be backed up before proceeding.
 
 ### 4.2 Entering Download Mode
 
-1. Power the phone off.
-2. Press and hold **Volume Up + Volume Down**.
-3. While holding both volume buttons, connect the phone to the computer using USB.
-4. Release the buttons when the Samsung warning / Download Mode screen appears.
+1. The phone was powered off.
+2. **Volume Up + Volume Down** were pressed and held.
+3. While both volume buttons were held, the phone was connected to the computer over USB.
+4. The buttons were released when the Samsung warning / Download Mode screen appeared.
 
 ### 4.3 Confirming the unlock
 
-1. At the warning screen, long-press **Volume Up** to enter the bootloader-unlock confirmation screen.
-2. Review the warning.
-3. Press **Volume Up** to confirm unlocking.
+1. At the warning screen, **Volume Up** was long-pressed to enter the bootloader-unlock confirmation screen.
+2. The warning was reviewed.
+3. **Volume Up** was pressed to confirm the unlock.
 
-The phone then performed the unlock operation and factory reset.
+The bootloader was then unlocked, and the phone performed a factory reset.
 
 ### 4.4 Post-reset verification
 
-After the reset, the phone was set up again and connected to the internet during setup. In Developer options, the OEM unlocking entry was greyed out and displayed:
+After the reset, the phone was set up again and connected to the internet during setup. Developer options was then checked. The OEM unlocking entry was greyed out and displayed:
 
 ```text
 Bootloader already unlocked
 ```
 
-That was the observed confirmation that the bootloader had been unlocked successfully.
+This message confirmed that the bootloader was unlocked.
 
-**Data impact:** The factory reset was an expected consequence of unlocking, not an unexpected failure.
+**Data impact:** The factory reset was an expected part of the bootloader-unlock process, not an unexpected failure.
 
 ## 5. Magisk boot-image preparation
 
 ### 5.1 Source image and Magisk version
 
-The stock `boot.img` extracted from the matching firmware was used as the source. Magisk version 31.1 was used; the application package was:
+The stock `boot.img` extracted from the matching firmware was used as the source image. Magisk version 31.1 was used; the application package was:
 
 ```text
 magisk-31.1.apk
@@ -142,29 +142,29 @@ The stock boot image was patched with Magisk 31.1. The resulting image was named
 magisk_boot.img
 ```
 
-That was the image later flashed successfully.
+This image was subsequently flashed successfully.
 
-The exact taps used inside the Magisk application and the exact file-picker paths selected during patching were not retained in the available command history. The successful result is independently supported by the resulting image, the matching BOOT-partition capacity, the successful flash, and the later MagiskSU verification.
+The exact buttons selected inside the Magisk application and the precise file-picker paths used during patching are not available in the retained record. Those details are therefore omitted rather than reconstructed. The resulting image was subsequently flashed, its size matched the BOOT-partition capacity, the flash completed successfully, and MagiskSU root access was verified.
 
-The successful procedure used the patched **boot** image. The recovery image was not flashed as part of this procedure.
+The patched **boot** image was used for the successful procedure. The recovery image was not flashed.
 
 ## 6. Flashing-tool investigation
 
-The patched image needed to be written to the phone's `BOOT` partition while the phone was in Samsung Download Mode.
+The patched image needed to be written to the device's `BOOT` partition while the phone was in Samsung Download Mode.
 
 ### 6.1 Odin4 attempt
 
-Odin4 source was obtained and built on Arch Linux. The resulting executable reported:
+The Odin4 source was obtained and built on Arch Linux. The resulting executable reported:
 
 ```text
 v7.3.0-a46321b
 ```
 
-Odin4 was attempted first, but session initiation failed. It was not used for the successful flash. The exact Odin4 error text was not retained, so no specific error code or cause is asserted here.
+Odin4 was tested first, but session initiation failed. It was not used for the successful flash. The exact error text is no longer available; no specific error code or cause is therefore attributed to the failure.
 
 ### 6.2 Heimdall installation and inspection
 
-Heimdall was installed on Arch Linux. Its version was checked with:
+Heimdall was installed on Arch Linux, and its version was checked with:
 
 ```bash
 heimdall --version
@@ -176,7 +176,7 @@ Recorded output:
 2.2.2
 ```
 
-Heimdall successfully communicated with the phone in Download Mode. The device's PIT information was read to identify partition names, IDs and capacities.
+Heimdall successfully communicated with the device in Download Mode. The device PIT information was read to identify partition names, IDs, and capacities.
 
 The recorded partition details were:
 
@@ -185,11 +185,11 @@ The recorded partition details were:
 | `BOOT` | 12 | 61,865,984 bytes |
 | `RECOVERY` | 13 | 71,106,560 bytes |
 
-The patched `magisk_boot.img` was 61,865,984 bytes, exactly matching the reported BOOT partition capacity. This check was performed before flashing. The recovery image was retained but not flashed.
+The patched `magisk_boot.img` was 61,865,984 bytes, exactly matching the reported BOOT-partition capacity. This was checked before flashing. The recovery image was retained but not flashed.
 
 ## 7. Flashing the patched boot image
 
-With the phone in Download Mode and connected to the Arch Linux computer, the following command was used:
+With the phone in Download Mode and connected to the Arch Linux host, the following command was executed:
 
 ```bash
 sudo heimdall flash --BOOT magisk_boot.img --no-reboot --verbose
@@ -207,13 +207,13 @@ Argument meanings:
 | `--no-reboot` | Prevents Heimdall from automatically rebooting when the operation completes |
 | `--verbose` | Requests detailed operation output |
 
-The command completed successfully. The phone was then rebooted and Android started successfully.
+The command completed successfully. The phone was then rebooted, and Android started successfully.
 
-The successful flash targeted `BOOT`. The stock recovery image was not flashed, and no recovery-partition modification was required for this root method.
+Only the `BOOT` partition was flashed. The stock recovery image was not flashed, and the recovery partition did not require modification for this root method.
 
 ## 8. First boot and root verification
 
-After flashing, the phone booted successfully into Android. ADB was used from Arch Linux to communicate with the running phone.
+After flashing, the phone booted into Android successfully. ADB from Arch Linux was used for device communication.
 
 The recorded ADB serial was:
 
@@ -229,7 +229,7 @@ adb devices
 
 ### 8.1 Root identity
 
-The following command was run from the host:
+The following command was run from the host computer:
 
 ```bash
 adb shell su -c "id"
@@ -241,7 +241,7 @@ Observed output:
 uid=0(root) gid=0(root) groups=0(root) context=u:r:magisk:s0
 ```
 
-This confirmed that the command executed with UID 0 and the Magisk SELinux domain.
+This output confirmed that the command ran with UID 0 in the Magisk SELinux domain.
 
 ### 8.2 MagiskSU version
 
@@ -291,25 +291,25 @@ Output:
 Enforcing
 ```
 
-SELinux remained in `Enforcing` mode after rooting. Root access was working without changing SELinux to permissive mode.
+SELinux remained in `Enforcing` mode after rooting. Root access was available without changing SELinux to permissive mode.
 
 ### 8.5 Interactive shell behaviour
 
-During later shell use, an interactive `su` attempt from an ADB shell did not visibly change the shell identity. This initially looked like a possible root-shell issue, but command-based verification had already proved that MagiskSU worked.
+During later shell use, an interactive `su` attempt from an ADB shell did not visibly change the shell identity. This initially appeared to be a possible root-shell issue, but command-based checks had already confirmed that MagiskSU was working.
 
-The following command was used to start a persistent root shell:
+The following command starts a persistent root shell:
 
 ```sh
 su -c sh
 ```
 
-Inside that shell, identity could be checked with:
+The shell identity was checked with:
 
 ```sh
 id
 ```
 
-The command distinctions are important:
+The following command distinctions were established during troubleshooting:
 
 - `su -c "id"` runs `id` as root and then exits.
 - `su -c sh` starts a shell as root.
@@ -317,11 +317,11 @@ The command distinctions are important:
 - `su -c cd /data` does not change the current shell's directory because `cd` runs in a separate child shell.
 - `sudo` is not normally available in Android's shell. Magisk root commands use `su`.
 
-The root result was confirmed by the UID 0 output, MagiskSU version, Magisk path, and successful boot.
+Root access was confirmed through the UID 0 output, the MagiskSU version, the Magisk path, and the successful boot.
 
 ## 9. Working files and cleanup
 
-The working firmware directory was cleaned after the successful root operation. The recorded retained files in `~/Downloads/M21-firmware/` included:
+After the rooting process, the working firmware directory was cleaned up. The files recorded as retained in `~/Downloads/M21-firmware/` included:
 
 ```text
 AP_M215FXXS3CWK1_CL25741605_QB74561328_REV00_user_low_ship_meta_RKEY_OS12.tar.md5
@@ -337,7 +337,7 @@ recovery.img
 
 The original firmware ZIP remained separately in `~/Downloads`.
 
-Temporary or redundant files removed during cleanup included:
+The following temporary or redundant files were removed during cleanup:
 
 - `magisk_patched-31100_R3DbE.tar`, because the actual patched `magisk_boot.img` was retained.
 - `magisk_patched_recovery.img`, which was not used.
@@ -345,7 +345,7 @@ Temporary or redundant files removed during cleanup included:
 - `boot.img.lz4` and `recovery.img.lz4`.
 - An Odin4 log and image-inspection directories that were no longer required.
 
-A SHA-256 checksum recorded for the patched AP TAR archive before it was removed was:
+Before removal of the patched AP TAR archive, its SHA-256 checksum was recorded:
 
 ```text
 063e5d508674e1f2faa8c17f96ffe993a7ebed24e242a7b1dce54c720296f9c5
@@ -353,15 +353,15 @@ A SHA-256 checksum recorded for the patched AP TAR archive before it was removed
 
 This checksum belongs to the patched AP TAR archive, not to `magisk_boot.img`.
 
-The exact final contents of the separate long-term archive directory were not verified in the retained record. The list above describes the recorded working-directory contents after cleanup and does not guarantee that every file was later copied to the archive.
+The exact final contents of the separate long-term archive directory were not verified in the retained record. The list above describes the recorded working-directory contents after cleanup and does not establish that every file was subsequently copied to the archive.
 
 ## 10. Follow-up investigation: multiple Android users
 
-After rooting, a separate investigation began to determine whether the firmware could support another Android user. This was not part of the successful root operation.
+After rooting, a separate investigation examined whether another Android user could be enabled in the firmware. This was not part of the successful rooting operation.
 
 ### 10.1 Existing users
 
-From the phone's root shell:
+From the device root shell, the following command was run:
 
 ```sh
 pm list users
@@ -378,7 +378,7 @@ Only the Owner profile (user ID `0`) was listed.
 
 ### 10.2 Initial command-context mistake
 
-An ADB command was first entered inside the Android shell:
+An ADB command was initially entered from inside the Android shell:
 
 ```sh
 adb shell pm create-user Aromal
@@ -390,11 +390,11 @@ It returned:
 sh: adb: inaccessible or not found
 ```
 
-This happened because `adb` is a host-side command and was being invoked inside the phone's shell. The Android package-manager command `pm`, however, can be run directly on the phone.
+This occurred because `adb` is a host-side command and was entered inside the device shell. The Android package-manager command `pm`, by contrast, can be run directly on the phone.
 
 ### 10.3 User-creation attempt
 
-The command was then run in the correct context:
+The user-creation command was then run directly in the device shell:
 
 ```sh
 pm create-user Aromal
@@ -419,7 +419,7 @@ Output:
 Maximum supported users: 1
 ```
 
-The provisioning state was checked:
+The provisioning state was checked with:
 
 ```sh
 settings get global device_provisioned
@@ -431,39 +431,39 @@ Output:
 1
 ```
 
-The firmware reported a maximum supported user count of one. The provisioning value indicated that the device had completed initial setup.
+The firmware reported a maximum supported user count of one. The provisioning value indicated that the phone had completed its initial setup.
 
 ### 10.5 Overlay search
 
-A targeted search for user-related active resource overlays was run:
+The active resource overlays were searched for user-related entries with:
 
 ```sh
 cmd overlay list | grep -i user
 ```
 
-No matching lines were returned. This only established that the command output contained no matching overlay names; it did not establish whether multi-user support could be enabled through another mechanism.
+The search returned no matching lines or overlay names. This result did not establish whether multi-user support could be enabled through another mechanism.
 
-A further search was proposed for the framework configuration keys:
+A search for relevant framework configuration keys was also performed:
 
 ```sh
 grep -R -n -E 'config_multiuserMaximumUsers|config_enableMultiUserUI' \
   /system/framework /system/etc /product/etc /vendor/etc 2>/dev/null
 ```
 
-No output from this search was preserved in the project record. No framework configuration was changed, and no second user was created.
+The output from this search was not preserved. No framework configuration was changed, and no second user was created.
 
-**Status:** Multi-user support remained unavailable through the normal user-creation interface. The firmware reported a maximum of one user. This follow-up investigation was not completed as a modification.
+**Status:** Another user could not be created through Android's normal user-creation interface. The firmware reported a maximum of one user. This investigation did not result in a system modification.
 
 ## 11. Problems encountered and how they were handled
 
 | Problem | Observation | Action / outcome |
 |---|---|---|
-| Odin4 session initiation | Odin4 v7.3.0-a46321b did not establish a flashing session | Switched to Heimdall 2.2.2; Heimdall communicated with the phone and completed the BOOT flash |
-| Confirming the correct target partition | The BOOT partition and image size needed to be checked | Read PIT information; BOOT was ID 12 with a capacity matching `magisk_boot.img` |
-| Interactive `su` did not visibly elevate | Interactive shell behaviour was confusing | Verified with `su -c "id"` and used `su -c sh` for a persistent root shell |
-| ADB command entered on the phone | `adb` was not found inside Android's shell | Ran ADB on Arch Linux and Android `pm` commands on the phone |
-| Creating a second Android user | `pm create-user` returned maximum-user-limit error code 6 | Checked `pm get-max-users`; firmware reported a maximum of one user |
-| zsh unmatched wildcard | zsh returned `no matches found` when a wildcard matched no files | Used explicit paths or inspected files rather than relying on an unmatched wildcard |
+| Odin4 session initiation | Odin4 v7.3.0-a46321b did not establish a flashing session | The flashing process was moved to Heimdall 2.2.2, which communicated with the device and completed the BOOT flash |
+| Confirming the correct target partition | The BOOT partition and image size required verification | The PIT information identified BOOT as ID 12, with a capacity matching `magisk_boot.img` |
+| Interactive `su` did not visibly elevate | The interactive shell identity did not visibly change | Root was verified with `su -c "id"`; `su -c sh` opened a persistent root shell |
+| ADB command entered on the phone | The host-side `adb` command was entered inside Android's shell, where it was unavailable | ADB was run on Arch Linux, while Android `pm` commands were run directly on the device |
+| Creating a second Android user | `pm create-user` returned maximum-user-limit error code 6 | `pm get-max-users` reported a firmware maximum of one user |
+| zsh unmatched wildcard | zsh returned `no matches found` when a wildcard matched no files | Explicit paths or file inspection were used instead of relying on an unmatched wildcard |
 
 ## 12. Final technical state
 
@@ -490,17 +490,17 @@ The Galaxy M21 was successfully moved from its original stock-firmware state to 
 
 The completed workflow was:
 
-1. Identify the exact device and firmware build.
-2. Obtain and verify the matching firmware package.
-3. Enable OEM unlocking and unlock the bootloader through Samsung Download Mode.
-4. Complete the resulting factory reset and verify the unlocked state in Developer options.
-5. Extract the stock boot image.
-6. Patch that image with Magisk 31.1.
-7. Test Odin4, encounter a session-initiation failure, and move to Heimdall.
-8. Read the device PIT and verify the BOOT partition details.
-9. Flash `magisk_boot.img` to `BOOT`.
-10. Reboot and verify MagiskSU root access, Magisk's path, and SELinux enforcement.
+1. The device and firmware build were identified.
+2. The matching firmware package was obtained and verified.
+3. OEM unlocking was enabled, and the bootloader was unlocked through Samsung Download Mode.
+4. The resulting factory reset was completed, and the unlocked state was verified in Developer options.
+5. The stock boot image was extracted.
+6. The image was patched with Magisk 31.1.
+7. Odin4 was tested; after session initiation failed, the process was moved to Heimdall.
+8. The device PIT was read, and the BOOT partition details were verified.
+9. `magisk_boot.img` was flashed to `BOOT`.
+10. The phone was rebooted, and MagiskSU root access, the Magisk path, and SELinux enforcement were verified.
 
-The central result was not merely the installation of a root-management application. The phone booted successfully with the patched boot image, and root access was independently verified from the Android shell.
+The result was more than the installation of a root-management application: the device booted successfully with the patched boot image, and root access was independently verified from the Android shell.
 
-The later multi-user investigation exposed a firmware-reported limit of one Android user. It remains a documented unsuccessful investigation, not a completed feature.
+The subsequent multi-user investigation showed that the firmware reported a limit of one Android user. It is recorded as an unsuccessful investigation, not as a completed feature.
