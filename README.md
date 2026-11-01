@@ -37,6 +37,7 @@ A boot-image-based root installation carried out from Arch Linux. The matching s
 Installation of an unofficial LineageOS 24.0 (Android 17) build on the Samsung Galaxy M21 (`SM-M215F`, codename `m21`) using Arch Linux. The process included recovery and VBMeta flashing, data formatting, ROM installation through ADB sideload, first-boot verification, partition backups, and investigation of MindTheGapps integration and recovery signature verification.
 
 **Document:** [LineageOS 24.0 ROM installation](projects/lineageos-installation.md)
+
 ---
 
 This repository is specific to the `SM-M215F` device. Procedures and results documented here should not be assumed to apply unchanged to other Samsung models or firmware versions.
